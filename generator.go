@@ -117,10 +117,17 @@ func (g *Generator) parseFile() ([]*File, error) {
 							continue
 						}
 						tags := extractTag(v.Tag.Value)
+						typIdent := v.Type.(*ast.Ident)
+						var typ string
+						if typIdent.Obj != nil {
+							typ = file.pkg + "." + typIdent.Name
+						} else {
+							typ = typIdent.Name
+						}
 						if tags.Gorm(v.Names[0].Name) {
 							fields = append(fields, &Field{
 								name:   v.Names[0].Name,
-								goType: v.Type.(*ast.Ident).Name,
+								goType: typ,
 								tags:   tags,
 							})
 						}

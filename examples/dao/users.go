@@ -48,6 +48,13 @@ func QueryUserBetweenAge(ctx context.Context, db *gorm.DB, min int, max int) ([]
 	return res, err
 }
 
+// QueryUserByStatus query object by one condition
+func QueryUserByStatus(ctx context.Context, db *gorm.DB, status common.Status) ([]*common.User, error) {
+	res := make([]*common.User, 0)
+	err := db.WithContext(ctx).Where("status = ?", status).Find(&res).Error
+	return res, err
+}
+
 // UpdateUser update object
 func UpdateUser(ctx context.Context, db *gorm.DB, args map[string]interface{}) error {
 	return db.WithContext(ctx).Model(&common.User{}).Updates(args).Error
