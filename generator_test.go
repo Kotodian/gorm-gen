@@ -24,12 +24,13 @@ func TestParseFile(t *testing.T) {
 	g := &Generator{
 		files: make([]string, 0),
 	}
-	dir := "/Users/linqiankai/go/src/gorm-gen/examples"
+	dir := "/Users/linqiankai/go/src/gorm-gen/examples/models/common"
 	g.parseDir(dir)
 	files, err := g.parseFile()
 	assert.Nil(t, err)
 	for _, file := range files {
 		t.Log(file.pkg)
+		t.Log(file.structs)
 	}
 }
 

@@ -84,7 +84,9 @@ func (g *Generator) parseFile() ([]*File, error) {
 	for _, f := range g.files {
 		// 解析文件
 		file := &File{structs: make([]*Struct, 0)}
+		// 获取文件的路径以及名称
 		file.dir, file.name = filename(f)
+		// 解析package名
 		fset := token.NewFileSet()
 		parse, err := parser.ParseFile(fset, f, nil, parser.PackageClauseOnly)
 		if err != nil {
@@ -99,13 +101,19 @@ func (g *Generator) parseFile() ([]*File, error) {
 		// 遍历节点
 		ast.Inspect(parse, func(node ast.Node) bool {
 			switch t := node.(type) {
+			// 如果是声明type
 			case *ast.TypeSpec:
+				// 确认这个type的声明是否是struct类型
 				structType, ok := t.Type.(*ast.StructType)
+				// 获取所有的字段名称、类型、标签
 				if ok {
 					stru := &Struct{}
 					stru.name = t.Name.Name
 					fields := make([]*Field, 0)
 					for _, v := range structType.Fields.List {
+						if v.Tag == nil {
+							continue
+						}
 						if isGorm(v.Names[0].Name, v.Tag.Value) {
 							fields = append(fields, &Field{
 								name:   v.Names[0].Name,
@@ -114,6 +122,7 @@ func (g *Generator) parseFile() ([]*File, error) {
 							})
 						}
 					}
+					stru.fields = fields
 					file.structs = append(file.structs, stru)
 				}
 			}

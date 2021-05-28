@@ -6,7 +6,7 @@ import (
 )
 
 func TestIsGorm(t *testing.T) {
-	ok := isGorm("name", `gorm:"column:name"`)
+	ok := isGorm("Name", "`gorm:\"column:name\"`")
 	assert.Equal(t, true, ok)
 }
 

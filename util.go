@@ -17,13 +17,18 @@ func isDirectory(name string) bool {
 }
 
 func isGorm(field string, tag string) bool {
+	if len(tag) == 0 {
+		return false
+	}
+	tag = strings.Trim(tag, "`")
 	childTag := strings.Split(tag, ":")[1]
 	childTag = strings.TrimPrefix(childTag, `"`)
 	if childTag != "column" {
 		return true
 	}
 	tagField := strings.Split(tag, ":")[2]
-	tagField = strings.TrimSuffix(tagField, `"`)
+	tagField = strings.Trim(tagField, `"`)
+	field = firstLower(field)
 	return field == tagField
 }
 
