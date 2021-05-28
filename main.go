@@ -23,6 +23,9 @@ func main() {
 		flag.Usage()
 		os.Exit(2)
 	}
-	g := &Generator{output: *output}
+	g := &Generator{
+		output: *output,
+		files:  make([]string, 0),
+	}
 	g.generate(*dir)
 }

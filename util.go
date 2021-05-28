@@ -1,6 +1,7 @@
 package main
 
 import (
+	"golang.org/x/tools/go/packages"
 	"log"
 	"os"
 	"path"
@@ -26,11 +27,22 @@ func isGorm(field string, tag string) bool {
 	return field == tagField
 }
 
-func filename(file string) string {
-	_, file = path.Split(file)
-	return strings.TrimSuffix(file, ".go")
+func filename(file string) (string, string) {
+	dir, file := path.Split(file)
+	return dir, file
 }
 
 func firstLower(str string) string {
 	return strings.ToLower(str[:1]) + str[1:]
+}
+
+func pkgPath(str string) string {
+	load, err := packages.Load(&packages.Config{
+		Dir:  str,
+		Mode: packages.NeedModule,
+	})
+	if err != nil {
+		panic(err)
+	}
+	return load[0].ID
 }
