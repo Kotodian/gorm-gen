@@ -13,6 +13,5 @@ func TestKeyValue(t *testing.T) {
 
 func TestExtractTag(t *testing.T) {
 	tags := extractTag("`json:\"name\" gorm:\"column:name\" create:\"scope:10\"`")
-	assert.Equal(t, true, isGorm("name", tags))
 	assert.Equal(t, "name", tags[1].Value("column"))
 }

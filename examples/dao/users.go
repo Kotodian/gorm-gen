@@ -27,6 +27,27 @@ func QueryUser(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([
 	return users, err
 }
 
+// QueryUserByName query object by one condition
+func QueryUserByName(ctx context.Context, db *gorm.DB, name string) ([]*common.User, error) {
+	res := make([]*common.User, 0)
+	err := db.WithContext(ctx).Where("name = ?", name).Find(&res).Error
+	return res, err
+}
+
+// QueryUserInName query object by one condition
+func QueryUserInName(ctx context.Context, db *gorm.DB, name []*string) ([]*common.User, error) {
+	res := make([]*common.User, 0)
+	err := db.WithContext(ctx).Where("name in ?", name).Find(&res).Error
+	return res, err
+}
+
+// QueryUserBetweenAge query object by one condition
+func QueryUserBetweenAge(ctx context.Context, db *gorm.DB, min int, max int) ([]*common.User, error) {
+	res := make([]*common.User, 0)
+	err := db.WithContext(ctx).Where("age >= ?", min).Where("age <= ?", max).Find(&res).Error
+	return res, err
+}
+
 // UpdateUser update object
 func UpdateUser(ctx context.Context, db *gorm.DB, args map[string]interface{}) error {
 	return db.WithContext(ctx).Model(&common.User{}).Updates(args).Error
@@ -35,4 +56,33 @@ func UpdateUser(ctx context.Context, db *gorm.DB, args map[string]interface{}) e
 // DeleteUser delete object
 func DeleteUser(ctx context.Context, db *gorm.DB, user common.User) error {
 	return db.WithContext(ctx).Delete(&user).Error
+}
+
+// CreateCompany create object
+func CreateCompany(ctx context.Context, db *gorm.DB, company *common.Company) error {
+	return db.WithContext(ctx).Create(company).Error
+}
+
+// ListCompany list objects
+func ListCompany(ctx context.Context, db *gorm.DB) ([]*common.Company, error) {
+	companys := make([]*common.Company, 0)
+	err := db.WithContext(ctx).Where("deleted_at=0").Find(&companys).Error
+	return companys, err
+}
+
+// QueryCompany query objects by condition
+func QueryCompany(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*common.Company, error) {
+	companys := make([]*common.Company, 0)
+	err := db.WithContext(ctx).Where(args).Where("deleted_at=0").Find(&companys).Error
+	return companys, err
+}
+
+// UpdateCompany update object
+func UpdateCompany(ctx context.Context, db *gorm.DB, args map[string]interface{}) error {
+	return db.WithContext(ctx).Model(&common.Company{}).Updates(args).Error
+}
+
+// DeleteCompany delete object
+func DeleteCompany(ctx context.Context, db *gorm.DB, company common.Company) error {
+	return db.WithContext(ctx).Delete(&company).Error
 }

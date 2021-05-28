@@ -40,6 +40,8 @@ func (g *Generator) generate(dir string) {
 			g.buildList(file.pkg, s)
 			// 生成dao层query
 			g.buildQuery(file.pkg, s)
+			// 生成dao层scope
+			g.buildScope(file.pkg, s)
 			// 生成dao层update
 			g.buildUpdate(file.pkg, s)
 			// 生成dao层delete
@@ -115,7 +117,7 @@ func (g *Generator) parseFile() ([]*File, error) {
 							continue
 						}
 						tags := extractTag(v.Tag.Value)
-						if isGorm(v.Names[0].Name, tags) {
+						if tags.Gorm(v.Names[0].Name) {
 							fields = append(fields, &Field{
 								name:   v.Names[0].Name,
 								goType: v.Type.(*ast.Ident).Name,

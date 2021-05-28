@@ -13,7 +13,28 @@ type Field struct {
 	// tag
 	tag string
 	// tags
-	tags []*Tag
+	tags Tags
+}
+
+type Tags []*Tag
+
+func (tags Tags) Exists(key string) *Tag {
+	for _, t := range tags {
+		if t.name == key {
+			return t
+		} else {
+			if t.child.name == key {
+				return t
+			}
+		}
+	}
+	return nil
+}
+func (tags Tags) Gorm(field string) bool {
+	if tag := tags.Exists("gorm"); tag != nil {
+		return tag.value == firstLower(field) || tag.Value("column") == firstLower(field)
+	}
+	return false
 }
 
 // Tag 一个字段的tag
@@ -39,7 +60,7 @@ func (t *Tag) Value(key string) string {
 // 	-- column (value: name)
 // create
 //  -- scope (value: 10)
-func extractTag(t string) []*Tag {
+func extractTag(t string) Tags {
 	t = strings.Trim(t, "`")
 	tags := make([]*Tag, 0)
 	for _, s := range strings.Split(t, " ") {
@@ -72,5 +93,14 @@ func keyValue(t string) (string, string) {
 
 // String 形如 "name string"
 func (field *Field) String() string {
-	return field.name + " " + field.goType
+	return firstLower(field.name) + " " + field.goType
+}
+
+func (field *Field) Strings() string {
+	return firstLower(field.name) + " []*" + field.goType
+}
+
+// DB 将go中的字段名称转成数据库中的字段名称
+func (field *Field) DB() string {
+	return snakeString(field.name)
 }
