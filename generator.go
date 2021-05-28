@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
 	"io/fs"
+	"log"
+	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -17,12 +21,45 @@ type Generator struct {
 	output string
 }
 
-func (g *Generator) Printf(format string, args ...interface{}) {
-	_, _ = fmt.Fprintf(&g.buf, format, args...)
+func (g *Generator) generate(dir string) {
+	// 获取所有目录下的文件,放入g.files中
+	g.parseDir(dir)
+	// 获取所有文件中所有的结构体以及字段(目前来看字段没啥用以后,
+	// 但是生成关联的时候必然有用
+	files, err := g.parseFile()
+	if err != nil {
+		panic(err)
+	}
+	for _, file := range files {
+		// 生成需要引入的包以及固定的注释
+		g.buildPrepare()
+		for _, s := range file.structs {
+			// 生成dao层create
+			g.buildCreate(file.pkg, s)
+			// 生成dao层list
+			g.buildList(file.pkg, s)
+			// 生成dao层query
+			g.buildQuery(file.pkg, s)
+			// 生成dao层update
+			g.buildUpdate(file.pkg, s)
+			// 生成dao层delete
+			g.buildDelete(file.pkg, s)
+		}
+		// 格式化代码
+		src := g.format()
+		// 确认生成文件
+		outputFile := path.Join(g.output, file.name)
+		err := os.WriteFile(outputFile, src, 0644)
+		if err != nil {
+			panic(err)
+		}
+		// 重置
+		g.reset()
+	}
 }
 
 // ParseDir 获取该目录下的所有文件
-func (g *Generator) ParseDir(dir string) {
+func (g *Generator) parseDir(dir string) {
 	if strings.HasSuffix(dir, ".go") {
 		return
 	}
@@ -38,7 +75,7 @@ func (g *Generator) ParseDir(dir string) {
 }
 
 // ParseFile 解析文件获得所有文件里的结构体以及包名称以及生成文件名称
-func (g *Generator) ParseFile() ([]*File, error) {
+func (g *Generator) parseFile() ([]*File, error) {
 	if len(g.files) == 0 {
 		return nil, nil
 	}
@@ -93,4 +130,25 @@ func (g *Generator) buildPrepare() {
 	g.Printf("\"context\"\n")
 	g.Printf(")")
 	g.Printf("\n")
+}
+
+// format 使用gofmt格式化go代码
+func (g *Generator) format() []byte {
+	src, err := format.Source(g.buf.Bytes())
+	if err != nil {
+		log.Printf("warning: internal error: invalid Go generated: %s", err)
+		log.Printf("warning: compile the package to analyze the error")
+		return g.buf.Bytes()
+	}
+	return src
+}
+
+// Printf 格式输出
+func (g *Generator) Printf(format string, args ...interface{}) {
+	_, _ = fmt.Fprintf(&g.buf, format, args...)
+}
+
+// reset 重置buffer
+func (g *Generator) reset() {
+	g.buf.Reset()
 }
