@@ -3,7 +3,7 @@ package main
 // buildList 生成gorm list
 func (g *Generator) buildList(pkg string, str *Struct) {
 	g.Printf("// List%s list objects\n", str.name)
-	g.Printf("func %sList(ctx context.Context, db *gorm.DB) ([]*%s.%s, error) {\n", str.name, pkg, str.name)
+	g.Printf("func List%s(ctx context.Context, db *gorm.DB) ([]*%s.%s, error) {\n", str.name, pkg, str.name)
 	g.Printf("%ss := make([]*%s.%s, 0)\n", firstLower(str.name), pkg, str.name)
 	g.Printf("err := db.WithContext(ctx).Where(\"deleted_at=0\").Find(&%ss).Error\n", firstLower(str.name))
 	g.Printf("return %ss, err\n", firstLower(str.name))
@@ -13,7 +13,7 @@ func (g *Generator) buildList(pkg string, str *Struct) {
 // buildQuery 生成gorm query
 func (g *Generator) buildQuery(pkg string, str *Struct) {
 	g.Printf("// Query%s query objects by condition\n", str.name)
-	g.Printf("func %sQuery(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*%s.%s,error) {\n", str.name, pkg, str.name)
+	g.Printf("func Query%s(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*%s.%s,error) {\n", str.name, pkg, str.name)
 	g.Printf("%ss := make([]*%s.%s, 0)\n", firstLower(str.name), pkg, str.name)
 	g.Printf("err := db.WithContext(ctx).Where(args).Where(\"deleted_at=0\").Find(&%ss).Error\n", firstLower(str.name))
 	g.Printf("return %ss, err\n", firstLower(str.name))

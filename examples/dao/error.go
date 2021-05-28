@@ -14,14 +14,14 @@ func CreateErr(ctx context.Context, db *gorm.DB, err *special.Err) error {
 }
 
 // ListErr list objects
-func ErrList(ctx context.Context, db *gorm.DB) ([]*special.Err, error) {
+func ListErr(ctx context.Context, db *gorm.DB) ([]*special.Err, error) {
 	errs := make([]*special.Err, 0)
 	err := db.WithContext(ctx).Where("deleted_at=0").Find(&errs).Error
 	return errs, err
 }
 
 // QueryErr query objects by condition
-func ErrQuery(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*special.Err, error) {
+func QueryErr(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*special.Err, error) {
 	errs := make([]*special.Err, 0)
 	err := db.WithContext(ctx).Where(args).Where("deleted_at=0").Find(&errs).Error
 	return errs, err

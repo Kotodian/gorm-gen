@@ -14,14 +14,14 @@ func CreateUser(ctx context.Context, db *gorm.DB, user *common.User) error {
 }
 
 // ListUser list objects
-func UserList(ctx context.Context, db *gorm.DB) ([]*common.User, error) {
+func ListUser(ctx context.Context, db *gorm.DB) ([]*common.User, error) {
 	users := make([]*common.User, 0)
 	err := db.WithContext(ctx).Where("deleted_at=0").Find(&users).Error
 	return users, err
 }
 
 // QueryUser query objects by condition
-func UserQuery(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*common.User, error) {
+func QueryUser(ctx context.Context, db *gorm.DB, args map[string]interface{}) ([]*common.User, error) {
 	users := make([]*common.User, 0)
 	err := db.WithContext(ctx).Where(args).Where("deleted_at=0").Find(&users).Error
 	return users, err
