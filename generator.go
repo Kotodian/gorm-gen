@@ -114,11 +114,12 @@ func (g *Generator) parseFile() ([]*File, error) {
 						if v.Tag == nil {
 							continue
 						}
-						if isGorm(v.Names[0].Name, v.Tag.Value) {
+						tags := extractTag(v.Tag.Value)
+						if isGorm(v.Names[0].Name, tags) {
 							fields = append(fields, &Field{
 								name:   v.Names[0].Name,
 								goType: v.Type.(*ast.Ident).Name,
-								tag:    v.Tag.Value,
+								tags:   tags,
 							})
 						}
 					}

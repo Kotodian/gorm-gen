@@ -16,20 +16,17 @@ func isDirectory(name string) bool {
 	return info.IsDir()
 }
 
-func isGorm(field string, tag string) bool {
-	if len(tag) == 0 {
-		return false
+func isGorm(field string, tags []*Tag) bool {
+	for _, t := range tags {
+		if t.name == "gorm" {
+			if t.value == "" {
+				return t.child.value == field
+			} else {
+				return t.value == field
+			}
+		}
 	}
-	tag = strings.Trim(tag, "`")
-	childTag := strings.Split(tag, ":")[1]
-	childTag = strings.TrimPrefix(childTag, `"`)
-	if childTag != "column" {
-		return true
-	}
-	tagField := strings.Split(tag, ":")[2]
-	tagField = strings.Trim(tagField, `"`)
-	field = firstLower(field)
-	return field == tagField
+	return false
 }
 
 func filename(file string) (string, string) {
@@ -50,4 +47,8 @@ func pkgPath(str string) string {
 		panic(err)
 	}
 	return load[0].ID
+}
+
+func tag(str string) string {
+	return ""
 }
